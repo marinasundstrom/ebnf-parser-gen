@@ -45,9 +45,13 @@ namespace Sundstrom
 		{
 			Console.WriteLine(":: PARSER ::");
 			Console.WriteLine();
-			
-			var parser = new LRParser(grammar);
-			var root = parser.Parse("foo 1");
+
+			try {
+				var parser = new LRParser(grammar);
+				var root = parser.Parse("foo 1");
+			} catch(LRParserException exception) {
+				Console.WriteLine (exception);
+			}
 		}
 		static void PrintTerminalsAndNonTerminals(Grammar grammar)
 		{
@@ -67,11 +71,16 @@ namespace Sundstrom
 				Console.WriteLine();
 			}
 			
-			using(Stream stream = File.OpenWrite("test.out.g")) {
-				grammar.WriteTo(stream);
-			}
+			// OutputGrammarToFile (grammar);
 			
 			Console.WriteLine();
+		}
+
+		static void OutputGrammarToFile (Grammar grammar)
+		{
+			using (Stream stream = File.OpenWrite ("test.out.g")) {
+				grammar.WriteTo (stream);
+			}
 		}
 	}
 }

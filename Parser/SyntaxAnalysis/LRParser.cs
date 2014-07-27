@@ -229,7 +229,11 @@ namespace Sundstrom.SyntaxAnalysis
 			}
 		}
 	}
-	
+
+	public class LRParserException : Exception {
+
+	}
+
 	public enum NodeKind {
 		Terminal,
 		NonTerminal

@@ -1,8 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-# SharpDevelop 5.0
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Parser", "Parser\Parser.csproj", "{E1593562-274A-45F8-A365-4A871302D717}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Parser.Tests", "Parser.Tests\Parser.Tests.csproj", "{D7F8AAF5-C206-408C-A98F-642B3B59BC8F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -10,9 +11,16 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D7F8AAF5-C206-408C-A98F-642B3B59BC8F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D7F8AAF5-C206-408C-A98F-642B3B59BC8F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D7F8AAF5-C206-408C-A98F-642B3B59BC8F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D7F8AAF5-C206-408C-A98F-642B3B59BC8F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E1593562-274A-45F8-A365-4A871302D717}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E1593562-274A-45F8-A365-4A871302D717}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E1593562-274A-45F8-A365-4A871302D717}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E1593562-274A-45F8-A365-4A871302D717}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItem = Parser\Parser.csproj
 	EndGlobalSection
 EndGlobal
