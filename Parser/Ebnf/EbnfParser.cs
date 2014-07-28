@@ -12,7 +12,7 @@ using System.Data.Common;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Sundstrom.SyntaxAnalysis;
+using Sundstrom.Parsing;
 
 namespace Sundstrom.Ebnf
 {
@@ -212,7 +212,7 @@ namespace Sundstrom.Ebnf
 			return -1;
 		}
 
-		Rule ParseRule(int prec = 0)
+		Expression ParseRule(int prec = 0)
 		{
 			var left = ParsePrimary();
 			while (true) {
@@ -240,7 +240,7 @@ namespace Sundstrom.Ebnf
 			}
 		}
 
-		Rule ParseGrouping()
+		Expression ParseGrouping()
 		{
 			var rule = ParseRule();
 			Error error;
@@ -255,7 +255,7 @@ namespace Sundstrom.Ebnf
 			ReportError("Forward references are not allowed. Make sure the feature has been enabled.");
 		}
 
-		Rule ParsePrimary()
+		Expression ParsePrimary()
 		{
 			var token = ReadToken();
 			switch(token.Kind){
@@ -295,7 +295,7 @@ namespace Sundstrom.Ebnf
 			}
 		}
 
-		Rule ParseRepetition()
+		Expression ParseRepetition()
 		{
 			var rule = ParseRule();
 			Error error;
@@ -304,7 +304,7 @@ namespace Sundstrom.Ebnf
 			}
 			return new Repetition(rule);;
 		}
-		Rule ParseTerminal(char c)
+		Expression ParseTerminal(char c)
 		{
 			StringBuilder sb = new StringBuilder();
 			Token token = PeekToken();
@@ -548,7 +548,7 @@ namespace Sundstrom.Ebnf
 	[Flags]
 	public enum ParserOptions {
 		None = 0,
-		AllowForwardReferences = 2
+		AllowForwardReferences = 1
 	}
 	
 	public class GrammarInfoAttribute : Attribute {
@@ -576,6 +576,37 @@ namespace Sundstrom.Ebnf
 		static Grammar() {
 			EOF = new Terminal("EOF");
 			SyntaxError =  new Terminal("SYNTAX_ERROR");
+		}
+		
+		public string Name {
+			get {
+				return GetGrammarInfoAttributeValue("Name");
+			}
+		}
+		
+		public string Author {
+			get {
+				return GetGrammarInfoAttributeValue("Author");
+			}
+		}
+		
+		public string Description {
+			get {
+				return GetGrammarInfoAttributeValue("Description");
+			}
+		}
+
+		string GetGrammarInfoAttributeValue(string name)
+		{
+			var grammarInfoAttributeType = typeof(GrammarInfoAttribute);
+			var attr = this.GetType()
+				.GetCustomAttributes(grammarInfoAttributeType, false)
+				.FirstOrDefault();
+			if(attr != null){
+				return (string)grammarInfoAttributeType.GetProperty(name).GetValue(attr);
+			}
+			
+			return null;
 		}
 		
 		internal string RootName {
@@ -621,8 +652,8 @@ namespace Sundstrom.Ebnf
 		public NonTerminal RealRoot {
 			get {
 				if(realRoot == null) {
-					var lastNodeInRule = root.Rule.EnumerateConcatenated().Last();
-					if(lastNodeInRule.GetValueAsString() == Grammar.EOF.GetValueAsString()) {
+					var lastNodeInExpression = root.Rule.EnumerateConcatenated().Last();
+					if(lastNodeInExpression.GetValueAsString() == Grammar.EOF.GetValueAsString()) {
 						realRoot = root;
 					} else {
 						realRoot = new NonTerminal(
@@ -709,6 +740,18 @@ namespace Sundstrom.Ebnf
 		protected Terminal Term(string terminal) {
 			return Rule.Terminal(terminal);
 		}
+		
+		protected Repetition Repeat(Expression rule){
+			return rule.Repeat();
+		}
+		
+		protected Option Option(Expression rule){
+			return rule.Option();
+		}
+		
+		protected Grouping Group(Expression rule){
+			return Rule.Group(rule);
+		}
 
 		void TryProcessNode()
 		{
@@ -719,7 +762,7 @@ namespace Sundstrom.Ebnf
 				ProcessNode(RealRoot);
 			}
 		}
-		void ProcessNode (Node node) {
+		void ProcessNode (Expression node) {
 			var terminal = node as Terminal;
 			if (terminal != null) {
 				if(!terminals.Contains(terminal)){
@@ -762,21 +805,25 @@ namespace Sundstrom.Ebnf
 				}
 			}
 		}
+		
+		public void Analyze() {
+			throw new NotImplementedException();
+		}
 	}
 
-	public abstract class Node
+	public abstract class Expression
 	{
-		public static Concatenation operator + (Node left, Node right)
+		public static Concatenation operator + (Expression left, Expression right)
 		{
 			return new Concatenation (left, right);
 		}
 
-		public static Alternation operator | (Node left, Node right)
+		public static Alternation operator | (Expression left, Expression right)
 		{
 			return new Alternation (left, right);
 		}
 
-		public static implicit operator Node (string value)
+		public static implicit operator Expression (string value)
 		{
 			return new Terminal (value);
 		}
@@ -786,7 +833,7 @@ namespace Sundstrom.Ebnf
 		}
 	}
 
-	public class NonTerminal : Rule
+	public class NonTerminal : Expression
 	{
 		public NonTerminal (string name)
 		{
@@ -795,14 +842,14 @@ namespace Sundstrom.Ebnf
 
 		public string Name { get; internal set; }
 
-		Rule rule;
-		public Rule Rule {
+		Expression rule = null;
+		public Expression Rule {
 			get {
 				return rule;
 			}
 			set {
 				if(rule != null) {
-					throw new InvalidOperationException("Rule has already been set.");
+					throw new InvalidOperationException("Expression has already been set.");
 				}
 				rule = value;
 			}
@@ -823,7 +870,7 @@ namespace Sundstrom.Ebnf
 		}
 	}
 
-	public class Terminal : Rule
+	public class Terminal : Expression
 	{
 		public Terminal (string value)
 		{
@@ -848,7 +895,7 @@ namespace Sundstrom.Ebnf
 		}
 	}
 	
-	public class ErrorNode : Rule {
+	public class ErrorNode : Expression {
 		public ErrorNode(Error error) {
 			Error = error;
 		}
@@ -861,14 +908,14 @@ namespace Sundstrom.Ebnf
 		}
 	}
 
-	public abstract class Rule : Node
+	public static class Rule
 	{
-		public static Grouping Group (Node node)
+		public static Grouping Group (Expression node)
 		{
 			return new Grouping (node);
 		}
 
-		public static Repetition Repeat (Node node)
+		public static Repetition Repeat (Expression node)
 		{
 			return new Repetition (node);
 		}
@@ -878,24 +925,28 @@ namespace Sundstrom.Ebnf
 			return new Terminal (value);
 		}
 
-		public static NonTerminal NonTerminal(string name, Rule rule) {
+		public static NonTerminal NonTerminal(string name, Expression rule) {
 			var nonTerminal = new NonTerminal (name);
 			nonTerminal.Rule = rule;
 			return nonTerminal;
 		}
 	}
 
-	public sealed class Concatenation : Rule
+	public sealed class Concatenation : Expression
 	{
-		public Concatenation (Node left, Node right)
+		public Concatenation (Expression left, Expression right)
 		{
 			Left = left;
 			Right = right;
 		}
 
-		public Node Left { get; private set; }
+		public Expression Left { get; private set; }
 
-		public Node Right { get; private set; }
+		public Expression Right { get; private set; }
+	
+		public override string GetValueAsString () {
+			return string.Empty;
+		}
 		
 		public override string ToString()
 		{
@@ -903,17 +954,21 @@ namespace Sundstrom.Ebnf
 		}
 	}
 
-	public sealed class Alternation : Rule
+	public sealed class Alternation : Expression
 	{
-		public Alternation (Node left, Node right)
+		public Alternation (Expression left, Expression right)
 		{
 			Left = left;
 			Right = right;
 		}
 
-		public Node Left { get; private set; }
+		public Expression Left { get; private set; }
 
-		public Node Right { get; private set; }
+		public Expression Right { get; private set; }
+		
+		public override string GetValueAsString () {
+			return string.Empty;
+		}
 		
 		public override string ToString()
 		{
@@ -921,14 +976,14 @@ namespace Sundstrom.Ebnf
 		}
 	}
 
-	public sealed class Option : Rule
+	public sealed class Option : Expression
 	{
-		public Option (Node node)
+		public Option (Expression node)
 		{
 			Node = node;
 		}
 
-		public Node Node { get; private set; }
+		public Expression Node { get; private set; }
 		
 		public override string ToString()
 		{
@@ -936,14 +991,14 @@ namespace Sundstrom.Ebnf
 		}
 	}
 
-	public sealed class Repetition : Rule
+	public sealed class Repetition : Expression
 	{
-		public Repetition (Node node)
+		public Repetition (Expression node)
 		{
 			Node = node;
 		}
 
-		public Node Node { get; private set; }
+		public Expression Node { get; private set; }
 		
 		public override string ToString()
 		{
@@ -951,14 +1006,14 @@ namespace Sundstrom.Ebnf
 		}
 	}
 
-	public sealed class Grouping : Rule
+	public sealed class Grouping : Expression
 	{
-		public Grouping (Node node)
+		public Grouping (Expression node)
 		{
 			Node = node;
 		}
 
-		public Node Node { get; private set; }
+		public Expression Node { get; private set; }
 		
 		public override string ToString()
 		{
@@ -968,12 +1023,12 @@ namespace Sundstrom.Ebnf
 	
 	public static class NodeExtensions
 	{
-		public static Option Option (this Node node)
+		public static Option Option (this Expression node)
 		{
 			return new Option (node);
 		}
 
-		public static Repetition Repeat (this Node node)
+		public static Repetition Repeat (this Expression node)
 		{
 			return new Repetition (node);
 		}

@@ -57,7 +57,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Grammars\TestGrammar.cs" />
-    <Compile Include="SyntaxAnalysis\LRParser.cs" />
+    <Compile Include="Parsing\LRParser.cs" />
     <Compile Include="Ebnf\EbnfParser.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -74,6 +74,7 @@
     <None Include="Grammars\test.g">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <Compile Include="Parsing\GrammarStateParser.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

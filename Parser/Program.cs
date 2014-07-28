@@ -9,7 +9,7 @@
 using System;
 using System.IO;
 using Sundstrom.Ebnf;
-using Sundstrom.SyntaxAnalysis;
+using Sundstrom.Parsing;
 
 namespace Sundstrom
 {

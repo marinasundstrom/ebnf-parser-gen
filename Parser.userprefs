@@ -1,15 +1,29 @@
-﻿<Properties>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Parser\Program.cs">
+﻿<Properties GitUserInfo="UsingMD">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Release" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Parser.Tests\EbnfParserTest.cs">
     <Files>
-      <File FileName="Parser\Program.cs" Line="40" Column="47" />
-      <File FileName="Parser\Grammars\simple.g" Line="1" Column="1" />
+      <File FileName="Parser.Tests\EbnfParserTest.cs" Line="12" Column="4" />
+      <File FileName="Parser.Tests\LRParserTest.cs" Line="1" Column="1" />
+      <File FileName="Parser\Grammars\TestGrammar.cs" Line="1" Column="1" />
+      <File FileName="Parser\SyntaxAnalysis\LRParser.cs" Line="69" Column="3" />
+      <File FileName="c:\Users\Robert\Documents\SharpDevelop Projects\Parser\Parser\Program.cs" Line="1" Column="1" />
     </Files>
+    <Pads>
+      <Pad Id="MonoDevelop.NUnit.TestPad">
+        <State expanded="True" selected="True" />
+      </Pad>
+    </Pads>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore>
-      <Breakpoint file="C:\Users\Robert\Documents\SharpDevelop Projects\Parser\Parser\Program.cs" line="23" column="1" />
       <Breakpoint file="C:\Users\Robert\Documents\SharpDevelop Projects\Parser\Parser\EbnfParser.cs" line="110" column="1" />
+      <Breakpoint file="C:\Users\Robert\Documents\SharpDevelop Projects\Parser\Parser\SyntaxAnalysis\LRParser.cs" line="226" column="1" />
+      <Breakpoint file="C:\Users\Robert\Documents\SharpDevelop Projects\Parser\Parser.Tests\LRParserTest.cs" line="17" column="38" />
+      <Breakpoint file="C:\Users\Robert\Documents\SharpDevelop Projects\Parser\Parser\SyntaxAnalysis\LRParser.cs" line="78" column="1" />
+      <Breakpoint file="c:\Users\Robert\Documents\SharpDevelop Projects\Parser\Parser\Program.cs" line="52" column="1" />
+      <Breakpoint file="C:\Users\Robert\Documents\SharpDevelop Projects\Parser\Parser\SyntaxAnalysis\LRParser.cs" line="92" column="1" />
+      <Breakpoint file="C:\Users\Robert\Documents\SharpDevelop Projects\Parser\Parser\SyntaxAnalysis\LRParser.cs" line="73" column="1" />
+      <Breakpoint file="C:\Users\Robert\Documents\SharpDevelop Projects\Parser\Parser\SyntaxAnalysis\LRParser.cs" line="70" column="1" />
     </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
