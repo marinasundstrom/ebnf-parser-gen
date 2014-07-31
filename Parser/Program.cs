@@ -19,9 +19,11 @@ namespace Sundstrom
 		{
 			try {
 				var grammar = Grammar.ReadFrom(
-					File.OpenRead("Grammars/test.g"), ParserOptions.AllowForwardReferences);
+					File.OpenRead("Grammars/test.g"), new ParserOptions() { Root = "root" });
 				
 				PrintTerminalsAndNonTerminals(grammar);
+				
+				ParseStates(grammar);
 				
 				Parse(grammar);				
 				
@@ -41,9 +43,32 @@ namespace Sundstrom
 			Console.ReadKey(true);
 		}
 
+		static void ParseStates(Grammar grammar)
+		{
+			Console.WriteLine(":: GRAMMAR STATE PARSER ::");
+			Console.WriteLine();
+			
+			try {
+				var  parser = new GrammarStateParser(grammar);
+				var rootState = parser.ParseStates();
+				
+				foreach(var state in parser.States) {
+					Console.WriteLine("{0}\n", state.ToListForm());
+				}
+				
+//				Console.WriteLine(rootState);
+				
+				Console.WriteLine();
+				Console.WriteLine();
+				
+			} catch(Exception exception) {
+				Console.WriteLine (exception);
+			}
+		}
+		
 		static void Parse(Grammar grammar)
 		{
-			Console.WriteLine(":: PARSER ::");
+			Console.WriteLine(":: LALR PARSER ::");
 			Console.WriteLine();
 
 			try {

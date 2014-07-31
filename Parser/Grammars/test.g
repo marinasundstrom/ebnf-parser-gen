@@ -1,2 +1,3 @@
 ﻿option = "1" | "2" ;
-grammar = "foo", option ;
+inner = "foo", option ;
+root = "<", inner, ">" ;

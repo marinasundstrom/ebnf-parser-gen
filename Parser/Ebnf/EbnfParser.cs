@@ -25,7 +25,7 @@ namespace Sundstrom.Ebnf
 		private List<Error> errors;
 				
 		public EbnfParser(){
-			AllowForwardReferences = true;
+			Options = new ParserOptions();
 		}
 		
 		List<Terminal> Terminals {
@@ -38,18 +38,13 @@ namespace Sundstrom.Ebnf
 			set;
 		}
 		
-		public bool AllowForwardReferences {
-			get;
-			set;
-		}
-		
 		public IEnumerable<Error> Errors { 
 			get {
 				return errors;
 			}
 		}
 		
-		public bool ThrowExceptionOnErrors {
+		public ParserOptions Options {
 			get; 
 			set;
 		}
@@ -92,13 +87,13 @@ namespace Sundstrom.Ebnf
 				}
 				
 				if(errors.Any()) {
-					if(ThrowExceptionOnErrors) {
+					if(Options.ThrowExceptionOnErrors) {
 						throw new EbnfParserException(errors);
 					} else {
 						grammar = null;;
 					}
 				}
-
+				
 				return grammar;
 			}
 		}
@@ -160,7 +155,7 @@ namespace Sundstrom.Ebnf
 			if(Expect("=", out assignToken)) {
 				NonTerminal ruleDef = null;
 				var identifier = identifierToken.Value;
-				if(!(identifier == "Grammar" || identifier == "grammar")) {
+				if(!(identifier == Options.Root || identifier == "Grammar" || identifier == "grammar")) {
 					ruleDef = NonTerminals.FirstOrDefault(nt => nt.Name == identifier);
 					if(ruleDef != null) {
 						if(ruleDef.Rule != null) {
@@ -175,11 +170,11 @@ namespace Sundstrom.Ebnf
 				var rule = ParseRule();
 				Token semicolonToken;
 				if(Expect(";", out semicolonToken)) {
-					if(identifier == "Grammar" || identifier == "grammar") {
+					if(identifier == Options.Root || identifier == "Grammar" || identifier == "grammar") {
 						if(grammar.Root != null) {
 							ReportError("Grammar has already been assigned to.", assignToken.GetSourceLocation());
 						} else {
-							grammar.Root = new  NonTerminal(identifier) { 
+							grammar.Root = new  NonTerminal(Options.Root) { 
 								Rule =  rule 
 							};
 						}
@@ -262,7 +257,7 @@ namespace Sundstrom.Ebnf
 				case TokenKind.Identifier:
 					var nonTerminal = NonTerminals.FirstOrDefault(nt => nt.Name == token.Value);
 					if(nonTerminal == null) {
-						if(AllowForwardReferences) {
+						if(Options.AllowForwardReferences) {
 							nonTerminal = new NonTerminal(token.Value);
 							NonTerminals.Add(nonTerminal);
 						} else {
@@ -545,10 +540,24 @@ namespace Sundstrom.Ebnf
 		}
 	}
 	
-	[Flags]
-	public enum ParserOptions {
-		None = 0,
-		AllowForwardReferences = 1
+//	[Flags]
+//	public enum ParserOptions {
+//		None = 0,
+//		AllowForwardReferences = 1
+//	}
+	
+	public sealed class ParserOptions {
+		public ParserOptions() {
+			AllowForwardReferences = true;
+			AutoIdentifyRoot = false;
+			Root = "grammar";
+			ThrowExceptionOnErrors = true;
+		}
+		
+		public bool AllowForwardReferences { get; set; }
+		public bool AutoIdentifyRoot { get; set; }
+		public string Root { get; set; }
+		public bool ThrowExceptionOnErrors { get; set; }
 	}
 	
 	public class GrammarInfoAttribute : Attribute {
@@ -574,7 +583,9 @@ namespace Sundstrom.Ebnf
 		List<NonTerminal> nonTerminals = new List<NonTerminal>();
 		
 		static Grammar() {
-			EOF = new Terminal("EOF");
+			//EOF = Rule.NonTerminal("EOF", Term("\n"));
+			
+			EOF = new Terminal("EOF", "\n");
 			SyntaxError =  new Terminal("SYNTAX_ERROR");
 		}
 		
@@ -615,7 +626,7 @@ namespace Sundstrom.Ebnf
 			}
 			set {
 				root.Name = value;
-				MaybeUpdateRealRootName();
+				UpdateRealRootName();
 			}
 		}
 		
@@ -639,7 +650,7 @@ namespace Sundstrom.Ebnf
 			}
 		}
 
-		void MaybeUpdateRealRootName()
+		void UpdateRealRootName()
 		{
 			if (!realRoot.Name.StartsWith(root.Name)) {
 				realRoot.Name = string.Format("{0}'", root.Name);
@@ -665,9 +676,19 @@ namespace Sundstrom.Ebnf
 			} 
 		}
 		
-		public static Terminal EOF { get; private set; }
+		public static Terminal EOF { get; protected set; }
 		
-		public static Terminal SyntaxError { get; private set; }
+		public static Terminal SyntaxError { get; protected set; }
+		
+		/// <summary>
+		/// Parses grammar from string.
+		/// </summary>
+		/// <param name="text"></param>
+		/// <returns></returns>
+		public static Grammar Parse(string text)
+		{
+			return Parse(text, new ParserOptions());
+		}
 		
 		/// <summary>
 		/// Parses grammar from string.
@@ -675,11 +696,21 @@ namespace Sundstrom.Ebnf
 		/// <param name="text"></param>
 		/// <param name="options"></param>
 		/// <returns></returns>
-		public static Grammar Parse(string text, ParserOptions options = ParserOptions.AllowForwardReferences)
+		public static Grammar Parse(string text, ParserOptions options)
 		{
 			return ReadFrom(
 				new MemoryStream(
 					Encoding.UTF8.GetBytes(text)), options);
+		}
+		
+		/// <summary>
+		/// Reads grammar from stream as text.
+		/// </summary>
+		/// <param name="stream"></param>
+		/// <returns></returns>
+		public static Grammar ReadFrom(Stream stream)
+		{
+			return ReadFrom(stream, new ParserOptions());
 		}
 
 		/// <summary>
@@ -688,14 +719,10 @@ namespace Sundstrom.Ebnf
 		/// <param name="stream"></param>
 		/// <param name="options"></param>
 		/// <returns></returns>
-		public static Grammar ReadFrom(Stream stream, ParserOptions options = ParserOptions.AllowForwardReferences)
+		public static Grammar ReadFrom(Stream stream, ParserOptions options)
 		{
 			var parser = new EbnfParser();
-			parser.AllowForwardReferences = false;
-			if(options.HasFlag(ParserOptions.AllowForwardReferences)) {
-				parser.AllowForwardReferences = true;
-			}
-			parser.ThrowExceptionOnErrors = true;
+			parser.Options = options;
 			return parser.ReadFrom(stream);
 		}
 		
@@ -737,19 +764,19 @@ namespace Sundstrom.Ebnf
 		/// </summary>
 		/// <param name="terminal"></param>
 		/// <returns></returns>
-		protected Terminal Term(string terminal) {
+		protected static Terminal Term(string terminal) {
 			return Rule.Terminal(terminal);
 		}
 		
-		protected Repetition Repeat(Expression rule){
+		protected static Repetition Repeat(Expression rule){
 			return rule.Repeat();
 		}
 		
-		protected Option Option(Expression rule){
+		protected static Option Option(Expression rule){
 			return rule.Option();
 		}
 		
-		protected Grouping Group(Expression rule){
+		protected static Grouping Group(Expression rule){
 			return Rule.Group(rule);
 		}
 
@@ -876,6 +903,14 @@ namespace Sundstrom.Ebnf
 		{
 			Value = value;
 		}
+		
+		public Terminal (string name, string value)
+			: this(value)
+		{
+			Name = name;
+		}
+			
+		public string Name { get; private set; }
 
 		public string Value { get; private set; }
 
@@ -891,6 +926,10 @@ namespace Sundstrom.Ebnf
 
 		public override string ToString ()
 		{
+			if(Name != null) {
+				return Name;
+			}
+			
 			return string.Format("\"{0}\"", Value);
 		}
 	}
