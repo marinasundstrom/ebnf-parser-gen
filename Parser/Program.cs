@@ -53,7 +53,7 @@ namespace Sundstrom
 				var rootState = parser.ParseStates();
 				
 				foreach(var state in parser.States) {
-					Console.WriteLine("{0}\n", state.ToListForm());
+					Console.WriteLine("{0}\n", state.ToListFormString());
 				}
 				
 //				Console.WriteLine(rootState);

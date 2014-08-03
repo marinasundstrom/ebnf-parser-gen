@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Parser", "Parser\Parser.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Parser.Tests", "Parser.Tests\Parser.Tests.csproj", "{D7F8AAF5-C206-408C-A98F-642B3B59BC8F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GrammarExplorer", "GrammarExplorer\GrammarExplorer.csproj", "{BA5F3CE8-2BED-46D5-AC7B-91A0F7CD30DC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -20,6 +22,10 @@ Global
 		{D7F8AAF5-C206-408C-A98F-642B3B59BC8F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D7F8AAF5-C206-408C-A98F-642B3B59BC8F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D7F8AAF5-C206-408C-A98F-642B3B59BC8F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BA5F3CE8-2BED-46D5-AC7B-91A0F7CD30DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BA5F3CE8-2BED-46D5-AC7B-91A0F7CD30DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BA5F3CE8-2BED-46D5-AC7B-91A0F7CD30DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BA5F3CE8-2BED-46D5-AC7B-91A0F7CD30DC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = Parser\Parser.csproj

@@ -856,7 +856,9 @@ namespace Sundstrom.Ebnf
 		}
 		
 		public virtual string GetValueAsString () {
-			throw new NotImplementedException();
+            //throw new NotImplementedException();
+
+            return string.Empty;
 		}
 	}
 
