@@ -189,7 +189,7 @@ namespace Sundstrom.Ebnf
 		{
 			switch(token.Kind) {
 				case TokenKind.Comma:
-				case TokenKind.Option:
+				//case TokenKind.Option:
 					return true;
 			}
 			return false;
@@ -199,15 +199,36 @@ namespace Sundstrom.Ebnf
 		{
 			switch(kind) {
 				case TokenKind.Comma:
-					return 1;
-					
-				case TokenKind.Option:
-					return 0;
-			}
+                    //return 1;
+                    return 0;
+
+                    //case TokenKind.Option:
+                    //	return 0;
+            }
 			return -1;
 		}
 
-		Expression ParseRule(int prec = 0)
+        Expression ParseRule()
+        {
+            Expression ret = ParseRule2();
+            while (true)
+            {
+                var token = PeekToken();
+                switch (token.Kind)
+                {
+                    case TokenKind.Option:
+                        ReadToken();
+                        break;
+
+                    default:
+                        return ret;
+                }
+                var rhs = ParseRule();
+                ret = new Alternation(ret, rhs);
+            }
+        }
+
+		Expression ParseRule2(int prec = 0)
 		{
 			var left = ParsePrimary();
 			while (true) {
@@ -216,14 +237,10 @@ namespace Sundstrom.Ebnf
 					var precedence = GetPrecedence (token.Kind);
 					if (precedence >= prec) {
 						ReadToken ();
-						var right = ParseRule(prec + 1);
+						var right = ParseRule2(prec + 1);
 						switch (token.Kind) {
 							case TokenKind.Comma:
 								left = new Concatenation (left, right);
-								break;
-									
-							case TokenKind.Option:
-								left = new Alternation (left, right);
 								break;
 						}
 					} else {
@@ -540,12 +557,6 @@ namespace Sundstrom.Ebnf
 		}
 	}
 	
-//	[Flags]
-//	public enum ParserOptions {
-//		None = 0,
-//		AllowForwardReferences = 1
-//	}
-	
 	public sealed class ParserOptions {
 		public ParserOptions() {
 			AllowForwardReferences = true;
@@ -735,7 +746,7 @@ namespace Sundstrom.Ebnf
 			stream.SetLength(0);
 			StreamWriter writer = new StreamWriter(stream);
 			writer.AutoFlush = true;
-			foreach (var nonTerminal in GetNonTerminals()) {
+            foreach (var nonTerminal in NonTerminals) {
 				writer.WriteLine(nonTerminal.GetDefinitionAsString());
 				writer.WriteLine();
 			}
@@ -745,18 +756,26 @@ namespace Sundstrom.Ebnf
 		/// Gets all terminals.
 		/// </summary>
 		/// <returns></returns>
-		public IEnumerable<Terminal> GetTerminals() {
-			TryProcessNode();
-			return terminals;
+		public IEnumerable<Terminal> Terminals
+        { 
+            get
+            {
+                TryProcessNode();
+                return terminals;
+            }
 		}
 		
 		/// <summary>
 		/// Gets all non-terminals.
 		/// </summary>
 		/// <returns></returns>
-		public IEnumerable<NonTerminal> GetNonTerminals() {
-			TryProcessNode();
-			return nonTerminals;
+		public IEnumerable<NonTerminal> NonTerminals
+        { 
+            get
+            {
+                TryProcessNode();
+                return nonTerminals;
+            }
 		}
 		
 		/// <summary>

@@ -112,36 +112,6 @@ namespace Sundstrom.Parsing
 			return ch;
 		}		
 	}
-	
-	public static class SequenceExtensions {
-		public static IEnumerable<Expression> EnumerateConcatenated(this Expression node) {
-			var concatenation = node as Concatenation;
-			if(concatenation != null) {
-				yield return concatenation.Left;
-				var result = EnumerateConcatenated(
-					concatenation.Right);
-				foreach(var r in result) {
-					yield return r;
-				}
-			} else {
-				yield return node;
-			}
-		}
-		
-		public static IEnumerable<Expression> EnumerateAlternations(this Expression node) {
-			var alternation = node as Alternation;
-			if(alternation != null) {
-				yield return alternation.Left;
-				var result = EnumerateAlternations(
-					alternation.Right);
-				foreach(var r in result) {
-					yield return r;
-				}
-			} else {
-				yield return node;
-			}
-		}
-	}
 
 	public class LRParserException : Exception {
 

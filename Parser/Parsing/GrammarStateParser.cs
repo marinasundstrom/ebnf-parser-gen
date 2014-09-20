@@ -18,8 +18,6 @@ namespace Sundstrom.Parsing
     /// </summary>
     public sealed class GrammarStateParser
     {
-
-
         public GrammarStateParser(Grammar grammar)
         {
             Grammar = grammar;
@@ -44,9 +42,15 @@ namespace Sundstrom.Parsing
 
             // Create states
 
+            ParseNonTerminalWithRule(root);
+
             return initialState;
         }
 
+        private void ParseNonTerminalWithRule(NonTerminal currentNonTerminal)
+        {
+            
+        }
 
         ParserState CreateState()
         {
@@ -259,19 +263,5 @@ namespace Sundstrom.Parsing
     {
         Transition,
         Reduce
-    }
-
-    public static class EnumerableExtensions
-    {
-
-        public static Queue<TSource> ToQueue<TSource>(this IEnumerable<TSource> source)
-        {
-            return new Queue<TSource>(source);
-        }
-
-        public static Queue<TSource> ToReverseQueue<TSource>(this IEnumerable<TSource> source)
-        {
-            return new Queue<TSource>(source.Reverse());
-        }
     }
 }

@@ -19,13 +19,17 @@ namespace Sundstrom
 		{
 			try {
 				var grammar = Grammar.ReadFrom(
-					File.OpenRead("Grammars/test.g"), new ParserOptions() { Root = "root" });
+					File.OpenRead("Grammars/expression2.g"), new ParserOptions() { Root = "root" });
 				
 				PrintTerminalsAndNonTerminals(grammar);
+
+                Simplify(grammar);
+
+                GenerateParserGenerator(grammar);
+
+				//ParseStates(grammar);
 				
-				ParseStates(grammar);
-				
-				Parse(grammar);				
+				//Parse(grammar);				
 				
 			} catch(EbnfParserException e) {
 				
@@ -43,7 +47,32 @@ namespace Sundstrom
 			Console.ReadKey(true);
 		}
 
-		static void ParseStates(Grammar grammar)
+        static void Simplify(Grammar grammar)
+        {
+            var newGrammar = grammar.ToBnf();
+        }
+
+        static void GenerateParserGenerator(Grammar grammar)
+        {
+            Console.WriteLine(":: PARSER GENERATOR ::");
+            Console.WriteLine();
+
+            try
+            {
+                var generator = new ParserGenerator(grammar);
+                var root = generator.Generate();
+
+                Console.WriteLine();
+                Console.WriteLine();
+
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception);
+            }
+        }
+
+        static void ParseStates(Grammar grammar)
 		{
 			Console.WriteLine(":: GRAMMAR STATE PARSER ::");
 			Console.WriteLine();
@@ -82,16 +111,16 @@ namespace Sundstrom
 		{
 			Console.WriteLine(":: TERMINALS ::");
 			Console.WriteLine();
-			
-			foreach (var terminal in grammar.GetTerminals()) {
+
+            foreach (var terminal in grammar.Terminals) {
 				Console.WriteLine(terminal.GetValueAsString());
 			}
 			Console.WriteLine();
 			
 			Console.WriteLine(":: NON-TERMINALS ::");
 			Console.WriteLine();
-			
-			foreach (var nonTerminal in grammar.GetNonTerminals()) {
+
+            foreach (var nonTerminal in grammar.NonTerminals) {
 				Console.WriteLine(nonTerminal.GetDefinitionAsString());
 				Console.WriteLine();
 			}

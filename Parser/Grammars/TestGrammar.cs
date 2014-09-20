@@ -11,21 +11,23 @@ using Sundstrom.Ebnf;
 
 namespace Sundstrom.Grammars
 {
-	/// <summary>
-	/// Description of test.
-	/// </summary>
-	[GrammarInfo("Test", "Robert Sundström", "A basic test grammar.")]
-	public class TestGrammar : Grammar
-	{
-		public TestGrammar()
-		{
-			var root = new NonTerminal("root");
-			var option = new NonTerminal("option");
-			
-			option.Rule = Term("1") | "2";
-			root.Rule = Term("Foo") | option;
-			
-			Root = root;
-		}
-	}
+    /// <summary>
+    /// Description of test.
+    /// </summary>
+    [GrammarInfo("Test", "Robert Sundström", "A basic test grammar.")]
+    public class TestGrammar : Grammar
+    {
+        NonTerminal option = new NonTerminal("option");
+        NonTerminal inner = new NonTerminal("inner");
+        NonTerminal root = new NonTerminal("root");
+
+        public TestGrammar()
+        {
+            option.Rule = Term("1") | "2";
+            inner.Rule = "foo" + option;
+            root.Rule = "<" + inner + ">";
+
+            Root = root;
+        }
+    }
 }

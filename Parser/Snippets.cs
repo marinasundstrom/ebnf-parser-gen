@@ -86,3 +86,94 @@ private void ResolveNonTerminal(ParserState previousState, NonTerminal nonTermin
 
     previousState.ActionTable.AddTransition(transitionState.Expression, transitionState.State);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+var queue = currentNonTerminal.Rule
+        .EnumerateConcatenated()
+        .ToQueue();
+
+ParserState initialState = null;
+ParserState lastState = null;
+ParserState currentState = null;
+            while(queue.Count > 0)
+            {
+                var node = queue.Dequeue();
+
+var terminal = node as Terminal;
+                if(terminal != null)
+                {
+                    lastState = currentState;
+                    currentState = CreateState();
+                    if (lastState != null)
+                    {
+                        lastState.ActionTable.AddTransition(terminal, currentState);
+                    }
+                    if (initialState == null)
+                    {
+                        initialState = currentState;
+                    }
+                }
+                else
+                {
+                    var nonTerminal = node as NonTerminal;
+                    if (nonTerminal != null)
+                    {
+                        lastState = currentState;
+                        currentState = CreateState();
+                        if(lastState != null)
+                        {
+                            lastState.ActionTable.AddTransition(nonTerminal, currentState);
+                        }
+                        if (initialState == null)
+                        {
+                            initialState = currentState;
+                        }
+                    }
+                    else
+                    {
+                        
+                    }
+                }
+            }
+
+
+            //NonTerminalTransitionStates.Add(new NonTerminalTransitionState(currentNonTerminal, initialState))
