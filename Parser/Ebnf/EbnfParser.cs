@@ -228,31 +228,55 @@ namespace Sundstrom.Ebnf
             }
         }
 
-		Expression ParseRule2(int prec = 0)
-		{
-			var left = ParsePrimary();
-			while (true) {
-				var token = PeekToken ();
-				if (IsOperator (token)) {
-					var precedence = GetPrecedence (token.Kind);
-					if (precedence >= prec) {
-						ReadToken ();
-						var right = ParseRule2(prec + 1);
-						switch (token.Kind) {
-							case TokenKind.Comma:
-								left = new Concatenation (left, right);
-								break;
-						}
-					} else {
-						return left;
-					}
-				} else {
-					return left;
-				}
-			}
-		}
 
-		Expression ParseGrouping()
+        Expression ParseRule2()
+        {
+            Expression ret = ParseRuleExpression();
+            while (true)
+            {
+                var token = PeekToken();
+                switch (token.Kind)
+                {
+                    case TokenKind.Comma:
+                        ReadToken();
+                        break;
+
+                    default:
+                        return ret;
+                }
+                var rhs = ParseRule2();
+                ret = new Concatenation(ret, rhs);
+            }
+        }
+
+
+        Expression ParseRuleExpression(int prec = 0)
+		{
+            //var left = ParsePrimary();
+            //while (true) {
+            //	var token = PeekToken ();
+            //	if (IsOperator (token)) {
+            //		var precedence = GetPrecedence (token.Kind);
+            //		if (precedence >= prec) {
+            //			ReadToken ();
+            //			var right = ParseRuleExpression(prec + 1);
+            //			switch (token.Kind) {
+            //				case TokenKind.Comma:
+            //					left = new Concatenation (left, right);
+            //					break;
+            //			}
+            //		} else {
+            //			return left;
+            //		}
+            //	} else {
+            //		return left;
+            //	}
+            //}
+            return ParsePrimary();
+
+        }
+
+        Expression ParseGrouping()
 		{
 			var rule = ParseRule();
 			Error error;
@@ -594,9 +618,8 @@ namespace Sundstrom.Ebnf
 		List<NonTerminal> nonTerminals = new List<NonTerminal>();
 		
 		static Grammar() {
-			//EOF = Rule.NonTerminal("EOF", Term("\n"));
-			
-			EOF = new Terminal("EOF", "\n");
+            EOS = new Terminal("EOS", "\0");
+            EOL = new Terminal("EOL", "\n");
 			SyntaxError =  new Terminal("SYNTAX_ERROR");
 		}
 		
@@ -674,20 +697,23 @@ namespace Sundstrom.Ebnf
 		public NonTerminal RealRoot {
 			get {
 				if(realRoot == null) {
-					var lastNodeInExpression = root.Rule.EnumerateConcatenated().Last();
-					if(lastNodeInExpression.GetValueAsString() == Grammar.EOF.GetValueAsString()) {
+                    var concatenation = (Concatenation)root.Rule;
+                    var lastNodeInExpression = concatenation.Concatenations().Last();
+					if(lastNodeInExpression.GetValueAsString() == Grammar.EOL.GetValueAsString()) {
 						realRoot = root;
 					} else {
 						realRoot = new NonTerminal(
 							string.Format("{0}'", root.Name));
-						realRoot.Rule = root + Grammar.EOF;
+						realRoot.Rule = root + Grammar.EOS;
 					}
 				} 
 				return realRoot;
 			} 
 		}
-		
-		public static Terminal EOF { get; protected set; }
+
+        public static Terminal EOS { get; protected set; }
+
+        public static Terminal EOL { get; protected set; }
 		
 		public static Terminal SyntaxError { get; protected set; }
 		
@@ -861,18 +887,23 @@ namespace Sundstrom.Ebnf
 	{
 		public static Concatenation operator + (Expression left, Expression right)
 		{
-			return new Concatenation (left, right);
+			return new Concatenation (left, right).RightFactor();
 		}
 
 		public static Alternation operator | (Expression left, Expression right)
 		{
-			return new Alternation (left, right);
+            return new Alternation (left, right).RightFactor();
 		}
 
 		public static implicit operator Expression (string value)
 		{
 			return new Terminal (value);
 		}
+
+        public virtual Expression RightFactor()
+        {
+            return this;
+        }
 		
 		public virtual string GetValueAsString () {
             //throw new NotImplementedException();
@@ -1007,8 +1038,27 @@ namespace Sundstrom.Ebnf
 		public override string GetValueAsString () {
 			return string.Empty;
 		}
-		
-		public override string ToString()
+
+        public override Expression RightFactor()
+        {
+            //var alternation = this as Alternation;
+            //if (alternation != null)
+            //{
+
+            //}
+            //else
+            //{
+            //    var concatenation = this as Concatenation;
+            //    if (concatenation != null)
+            //    {
+
+            //    }
+            //}
+
+            return base.RightFactor();
+        }
+
+        public override string ToString()
 		{
 			return string.Format("{0}, {1}", Left, Right);
 		}
@@ -1029,8 +1079,18 @@ namespace Sundstrom.Ebnf
 		public override string GetValueAsString () {
 			return string.Empty;
 		}
-		
-		public override string ToString()
+
+        public override Expression RightFactor()
+        {
+            if (Left is Alternation)
+            {
+
+            }
+
+            return base.RightFactor();
+        }
+
+        public override string ToString()
 		{
 			return string.Format("{0} | {1}", Left, Right);
 		}
@@ -1080,19 +1140,7 @@ namespace Sundstrom.Ebnf
 			return string.Format("({0})", Node);
 		}
 	}
-	
-	public static class NodeExtensions
-	{
-		public static Option Option (this Expression node)
-		{
-			return new Option (node);
-		}
 
-		public static Repetition Repeat (this Expression node)
-		{
-			return new Repetition (node);
-		}
-	}
 	
 	public struct SourceLocation {
 		int _line;

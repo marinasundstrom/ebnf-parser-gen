@@ -41,11 +41,23 @@
     <Reference Include="Microsoft.CSharp">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
+    <Reference Include="Microsoft.Practices.ServiceLocation">
+      <HintPath>..\packages\Microsoft.Practices.ServiceLocation.1.2.0.0\lib\portable-net45+win+wpa81+wp80+MonoAndroid10+MonoTouch10\Microsoft.Practices.ServiceLocation.dll</HintPath>
+    </Reference>
     <Reference Include="PresentationCore">
       <RequiredTargetFramework>3.0</RequiredTargetFramework>
     </Reference>
     <Reference Include="PresentationFramework">
       <RequiredTargetFramework>3.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="Sundstrom.Mvvm">
+      <HintPath>..\packages\Sundstrom.Mvvm.1.1.5354.17800\lib\portable-net45+win+wpa81+wp80+MonoAndroid10+MonoTouch10\Sundstrom.Mvvm.dll</HintPath>
+    </Reference>
+    <Reference Include="Sundstrom.NuIoc">
+      <HintPath>..\packages\Sundstrom.NuIoc.1.0.5329.40423\lib\portable-net45+win+WindowsPhoneApp81+wp80+MonoAndroid10+MonoTouch10\Sundstrom.NuIoc.dll</HintPath>
+    </Reference>
+    <Reference Include="Sundstrom.Validation">
+      <HintPath>..\packages\Sundstrom.Validation.1.1.5354.17756\lib\portable-net45+win+wpa81+wp80+MonoAndroid10+MonoTouch10\Sundstrom.Validation.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
@@ -87,8 +99,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="Readme.txt" />
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Parser\Parser.csproj">
       <Project>{E1593562-274A-45F8-A365-4A871302D717}</Project>

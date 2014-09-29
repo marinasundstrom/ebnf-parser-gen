@@ -4,12 +4,11 @@
     <ProjectGuid>{E1593562-274A-45F8-A365-4A871302D717}</ProjectGuid>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <OutputType>Exe</OutputType>
+    <OutputType>Library</OutputType>
     <RootNamespace>Sundstrom</RootNamespace>
     <AssemblyName>Sundstrom</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <NoWin32Manifest>False</NoWin32Manifest>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <TargetFrameworkProfile />
@@ -40,6 +39,9 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CodeAnalysis">
@@ -84,11 +86,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Ebnf\BnfExtensions.cs" />
+    <Compile Include="Ebnf\ExpressionExtensions.cs" />
+    <Compile Include="Ebnf\RuleExtensions.cs" />
+    <Compile Include="Ebnf\NonTerminalExtensions.cs" />
     <Compile Include="EnumerableExtensions.cs" />
-    <Compile Include="Grammars\TestGrammar.cs" />
-    <None Include="Grammars\expression2.g">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="packages.config" />
     <None Include="Snippets.cs" />
     <Compile Include="Parsing\LRParser.cs" />
@@ -99,19 +100,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="Grammars\c.g">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Grammars\ebnf.g">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Grammars\expression.g" />
-    <None Include="Grammars\simple.g">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Grammars\test.g">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <Compile Include="Parsing\GrammarStateParser.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
