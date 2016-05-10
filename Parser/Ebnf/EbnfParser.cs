@@ -697,9 +697,9 @@ namespace Sundstrom.Ebnf
 		public NonTerminal RealRoot {
 			get {
 				if(realRoot == null) {
-                    var concatenation = (Concatenation)root.Rule;
-                    var lastNodeInExpression = concatenation.Concatenations().Last();
-					if(lastNodeInExpression.GetValueAsString() == Grammar.EOL.GetValueAsString()) {
+                    var concatenation = root.Rule as Concatenation;
+                    var lastNodeInExpression = concatenation?.Concatenations().Last();
+					if(lastNodeInExpression != null && lastNodeInExpression.GetValueAsString() == Grammar.EOL.GetValueAsString()) {
 						realRoot = root;
 					} else {
 						realRoot = new NonTerminal(

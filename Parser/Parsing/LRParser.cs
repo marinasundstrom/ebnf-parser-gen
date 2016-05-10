@@ -1,199 +1,175 @@
-﻿/*
- * Created by SharpDevelop.
- * User: Robert
- * Date: 2014-07-25
- * Time: 11:49
- * 
- * To change this template use Tools | Options | Coding | Edit Standard Headers.
- */
+﻿using Sundstrom.Ebnf;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text;
-using Sundstrom.Ebnf;
+using System.Threading.Tasks;
 
 namespace Sundstrom.Parsing
 {
-	/// <summary>
-	/// Description of LRParser.
-	/// </summary>
-	public sealed class LRParser
-	{	
-			
-		public LRParser(Grammar grammar)
-		{
-			Grammar = grammar;
-			StateParser = new GrammarStateParser(Grammar);
-			
-			GenerateStates();
-		}
-		
-		private ParserState FirstState { get; set; }
-		
-		private GrammarStateParser StateParser { get; set; }
+    public class LRParser
+    {
+        private Sundstrom.Ebnf.Grammar grammar;
+        private List<ParserState> States = new List<ParserState>();
 
-		void GenerateStates() {
-			FirstState = StateParser.ParseStates();
-		}
+        public LRParser(Sundstrom.Ebnf.Grammar grammar)
+        {
+            this.grammar = grammar;
+        }
 
-		
-		public Grammar Grammar { get; private set; }
-		
-		public IEnumerable<ParserState> States { 
-			get {
-				return States;
-			}
-		}
-			
-		public ParseNode Parse(string text) {
-			return ReadFrom(
-				new MemoryStream(
-					Encoding.UTF8.GetBytes(text)));
-		}
-		
-		public ParseNode ReadFrom(Stream stream) {
-			Line = 1;
-			Column = 1;
-			
-			StreamReader = new StreamReader(stream);		
-			StateStack = new Stack<ParseNode>();
-			
-			return null;
-		}
-		
-		bool IsEndOfStream { 
-			get {
-				return StreamReader.EndOfStream;
-			}
-		}
-		
-		StreamReader StreamReader { get; set; }
-		
-		Stack<ParseNode> StateStack { get; set; }
-		
-		private void Shift () {
-			if(IsEndOfStream) {
-				StateStack.Push(
-					new TerminalNode("EOF"));
-			}
-				
-			var ch = ReadChar();
-			StateStack.Push(
-				new TerminalNode(ch.ToString()));
-		}	
-		
-		private void Reduce() {
-		
-		}
-		
-		private void Error () {
-			
-		}
-		
-		int Line { get; set; }
-		int Column { get; set; }
-		
-		private char Lookahead() {
-			return (char)StreamReader.Peek();
-		}
-			
-		private char ReadChar() {
-			int i = StreamReader.Read();
-			var ch = (char)i;
-			if(ch == '\n') {
-				Line ++;
-				Column = 1;
-			} if(ch == '\t') { 
-				Column += 4;
-			} else {
-				Column ++;
-			}
-			return ch;
-		}		
-	}
+        public object Parse(string v)
+        {
+            States.Clear();
 
-	public class LRParserException : Exception {
+            CreateStates();
 
-	}
+            return null;
+        }
 
-	public enum NodeKind {
-		Terminal,
-		NonTerminal
-	}
-	
-	public abstract class ParseNode {
-		public abstract NodeKind NodeKind { get; }		
-		public abstract string StringRepresentation { get; }
-		public abstract string Name { get; }
-	}
-	
-	public sealed class TerminalNode : ParseNode {
-		public TerminalNode(string value) {
-			Value = value;
-		}
-		
-		public string Value { get; private set; }
+        private void CreateStates()
+        {
+            States.Add(new ParserState(grammar, null, null, true));
+            States.Add(new ParserState(grammar, null, null, false));
 
-		public override NodeKind NodeKind {
-			get {
-				return NodeKind.Terminal;
-			}
-		}
-		
-		public override string StringRepresentation {
-			get {
-				return Value;
-			}
-		}
-		
-		public override string Name {
-			get {
-				return Value;
-			}
-		}
-		
-		public override string ToString()
-		{
-			return string.Format("{0} (Terminal)", Value);
-		}
-	}
-	
-	public sealed  class NonTerminalNode : ParseNode {
-		public NonTerminalNode(NonTerminal nonTerminal, IEnumerable<ParseNode> childNodes) {
-			NonTerminal = nonTerminal;
-			ChildNodes = childNodes;
-		}
-		
-		public NonTerminal NonTerminal { get; private set; }
-		
-		public IEnumerable<ParseNode> ChildNodes { get; private set; }
-		
-		public override NodeKind NodeKind {
-			get {
-				return NodeKind.NonTerminal;
-			}
-		}
-		
-		public override string Name {
-			get {
-				return NonTerminal.Name;
-			}
-		}
-		
-		public override string StringRepresentation {
-			get {
-				var sb = new StringBuilder();
-				foreach(var node in ChildNodes) {
-					sb.AppendFormat("{0}", node.StringRepresentation);
-				}
-				return sb.ToString();
-			}
-		}
-		
-		public override string ToString()
-		{
-			return string.Format("{0} ({1})", StringRepresentation, NonTerminal.Name);
-		}
-	}
+            foreach (var nonTerminal in grammar.NonTerminals)
+            {
+                if (!HasEntryState(nonTerminal))
+                {
+                    CreateEntryState(grammar, nonTerminal);
+                }
+            }
+
+            for (int i = 0; i < States.Count; i++)
+            {
+                var state = States[i];
+                if (state.IsInitial)
+                {
+                    ParseStates(state);
+                }
+            }
+        }
+
+        private void ParseStates(ParserState state)
+        {
+            if (state.IsInitial && state.Production == null && state.Terminal == null)
+            {
+                var root = States.Find(x => x.IsRoot);
+                state.States.Add(root);
+            }
+            else if (!state.IsInitial && state.Production == null && state.Terminal == null)
+            {
+                return;
+            }
+            else
+            {
+                var lastState = state;
+                ParserState state2 = state;
+                var sequence = state.Production.Rule.AsEnumerable().ToArray();
+                foreach (var x in sequence.Skip(1))
+                {
+                    var nonTerminal = x as NonTerminal;
+                    if (nonTerminal != null)
+                    {
+                        var result = States.Where(x2 => x2.Production == nonTerminal && x2.IsInitial);
+                        foreach (var state3 in result)
+                        {
+                            lastState.States.Add(state3);
+                            //state2 = state3.FindOuter();
+                        }
+                    }
+                    else
+                    {
+                        state2 = new ParserState(grammar, (Terminal)x, state.Production, false);
+                        States.Add(state2);
+                    }
+                    lastState = state2;
+                }
+            }
+        }
+
+        private bool HasEntryState(NonTerminal nonTerminal)
+        {
+            return States.Any(x => x.Production == nonTerminal && x.IsInitial);
+        }
+
+        private ParserState CreateEntryState(Grammar grammar, NonTerminal nonTerminal)
+        {
+            var tokens = nonTerminal.Rule.AsEnumerable().ToArray();
+            var first = tokens.First();
+
+            var alternation = first as Alternation;
+            if (alternation != null)
+            {
+                foreach (var route in alternation.Alternations())
+                {
+                    var tokens2 = route.AsEnumerable().ToArray();
+                    var first2 = tokens2.First();
+                    var state = new ParserState(grammar, (Terminal)first2, nonTerminal, true, alternation);
+                    States.Add(state);
+                    return state;
+                }
+            }
+            else
+            {
+                var nonTerminal2 = first as NonTerminal;
+                if (nonTerminal2 != null)
+                {
+                    if (!HasEntryState(nonTerminal2))
+                    {
+                        return CreateEntryState(grammar, nonTerminal2);
+                    }
+                }
+                else
+                {
+                    var state = new ParserState(grammar, (Terminal)first, nonTerminal, true);
+                    States.Add(state);
+                    return state;
+                }
+            }
+
+            throw new Exception();
+        }
+    }
+
+    public class ParserState
+    {
+        public ParserState(
+            Grammar grammar,
+            Terminal token,
+            NonTerminal rule,
+            bool isInitial = false,
+            Alternation alternation = null
+        )
+        {
+            Grammar = grammar;
+            Terminal = token;
+            Production = rule;
+            IsInitial = isInitial;
+            Alternation = alternation;
+
+            States = new List<ParserState>();
+        }
+
+        public bool IsRoot
+        {
+            get
+            {
+                return Production == Grammar.Root;
+            }
+        }
+
+        public Grammar Grammar { get; private set; }
+
+        public Terminal Terminal { get; private set; }
+
+        public Alternation Alternation { get; private set; }
+
+        public NonTerminal Production { get; private set; }
+
+        public bool IsInitial { get; private set; }
+
+        public bool IsReady { get; set; }
+
+        public List<ParserState> States { get; private set; }
+    }
 }

@@ -32,7 +32,7 @@ namespace Sundstrom.Ebnf
             }
             else
             {
-                yield return item;
+                yield return node.Right;
             }
         }
 
@@ -50,7 +50,7 @@ namespace Sundstrom.Ebnf
             }
             else
             {
-                yield return item;
+                yield return node.Right;
             }
         }
     }

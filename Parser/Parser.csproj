@@ -4,7 +4,7 @@
     <ProjectGuid>{E1593562-274A-45F8-A365-4A871302D717}</ProjectGuid>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <OutputType>Library</OutputType>
+    <OutputType>Exe</OutputType>
     <RootNamespace>Parser</RootNamespace>
     <AssemblyName>Parser</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
@@ -91,17 +91,18 @@
     <Compile Include="Ebnf\RuleExtensions.cs" />
     <Compile Include="Ebnf\NonTerminalExtensions.cs" />
     <Compile Include="EnumerableExtensions.cs" />
+    <None Include="Grammars\expression2.g">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
-    <None Include="Snippets.cs" />
-    <Compile Include="Parsing\LRParser.cs" />
     <Compile Include="Ebnf\EbnfParser.cs" />
-    <Compile Include="Parsing\ParserGenerator.cs" />
+    <Compile Include="Parsing\LRParser.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <Compile Include="Parsing\GrammarStateParser.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

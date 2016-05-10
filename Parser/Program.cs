@@ -19,7 +19,7 @@ namespace Sundstrom
 		{
 			try {
 				var grammar = Grammar.ReadFrom(
-					File.OpenRead("Grammars/expression2.g"), new ParserOptions() { Root = "root" });
+					File.OpenRead("Grammars/expression2.g"), new ParserOptions() { Root = "grammar", ThrowExceptionOnErrors = true });
 				
 				PrintTerminalsAndNonTerminals(grammar);
 
@@ -54,45 +54,45 @@ namespace Sundstrom
 
         static void GenerateParserGenerator(Grammar grammar)
         {
-            Console.WriteLine(":: PARSER GENERATOR ::");
-            Console.WriteLine();
+            //Console.WriteLine(":: PARSER GENERATOR ::");
+            //Console.WriteLine();
 
-            try
-            {
-                var generator = new ParserGenerator(grammar);
-                var root = generator.Generate();
+            //try
+            //{
+            //    var generator = new ParserGenerator(grammar);
+            //    var root = generator.Generate();
 
-                Console.WriteLine();
-                Console.WriteLine();
+            //    Console.WriteLine();
+            //    Console.WriteLine();
 
-            }
-            catch (Exception exception)
-            {
-                Console.WriteLine(exception);
-            }
+            //}
+            //catch (Exception exception)
+            //{
+            //    Console.WriteLine(exception);
+            //}
         }
 
         static void ParseStates(Grammar grammar)
 		{
-			Console.WriteLine(":: GRAMMAR STATE PARSER ::");
-			Console.WriteLine();
+////			Console.WriteLine(":: GRAMMAR STATE PARSER ::");
+////			Console.WriteLine();
 			
-			try {
-				var  parser = new GrammarStateParser(grammar);
-				var rootState = parser.ParseStates();
+////			try {
+////				var  parser = new GrammarStateParser(grammar);
+////				var rootState = parser.ParseStates();
 				
-				foreach(var state in parser.States) {
-					Console.WriteLine("{0}\n", state.ToListFormString());
-				}
+////				foreach(var state in parser.States) {
+////					Console.WriteLine("{0}\n", state.ToListFormString());
+////				}
 				
-//				Console.WriteLine(rootState);
+//////				Console.WriteLine(rootState);
 				
-				Console.WriteLine();
-				Console.WriteLine();
+////				Console.WriteLine();
+////				Console.WriteLine();
 				
-			} catch(Exception exception) {
-				Console.WriteLine (exception);
-			}
+////			} catch(Exception exception) {
+////				Console.WriteLine (exception);
+////			}
 		}
 		
 		static void Parse(Grammar grammar)
@@ -100,12 +100,12 @@ namespace Sundstrom
 			Console.WriteLine(":: LALR PARSER ::");
 			Console.WriteLine();
 
-			try {
-				var parser = new LRParser(grammar);
-				var root = parser.Parse("foo 1");
-			} catch(LRParserException exception) {
-				Console.WriteLine (exception);
-			}
+			//try {
+			//	var parser = new LRParser(grammar);
+			//	var root = parser.Parse("foo 1");
+			//} catch(LRParserException exception) {
+			//	Console.WriteLine (exception);
+			//}
 		}
 		static void PrintTerminalsAndNonTerminals(Grammar grammar)
 		{
@@ -124,6 +124,8 @@ namespace Sundstrom
 				Console.WriteLine(nonTerminal.GetDefinitionAsString());
 				Console.WriteLine();
 			}
+
+            Console.WriteLine(grammar.RealRoot);
 			
 			// OutputGrammarToFile (grammar);
 			
