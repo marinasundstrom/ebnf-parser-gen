@@ -885,14 +885,16 @@ namespace Sundstrom.Ebnf
 
 	public abstract class Expression
 	{
+        // TODO: Right-factor
+
 		public static Concatenation operator + (Expression left, Expression right)
 		{
-			return new Concatenation (left, right).RightFactor();
+            return new Concatenation(left, right).RightFactor() as Concatenation;
 		}
 
 		public static Alternation operator | (Expression left, Expression right)
 		{
-            return new Alternation (left, right).RightFactor();
+            return new Alternation(left, right).RightFactor() as Alternation;
 		}
 
 		public static implicit operator Expression (string value)

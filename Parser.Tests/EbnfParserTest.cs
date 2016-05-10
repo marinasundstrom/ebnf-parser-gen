@@ -1,14 +1,14 @@
-﻿using NUnit.Framework;
-using System;
+﻿using System;
 using Sundstrom.Ebnf;
 using System.IO;
+using Xunit;
+using System.Reflection;
 
 namespace Parser.Tests
 {
-	[TestFixture]
 	public class EbnfParserTest
 	{
-        [Test]
+        [Fact]
         public void Tree()
         {
             var one = new Terminal("one");
@@ -22,14 +22,14 @@ namespace Parser.Tests
         }
 
 
-        [Test]
-		public void Parse ()
+        [Fact]
+        public void Parse ()
 		{
 			var ebnfParser = new EbnfParser ();
 			var grammar = ebnfParser.Parse (@"grammar = ""foo"";");
 		}
 
-        [Test]
+        [Fact]
         public void ReadFile()
         {
             var ebnfParser = new EbnfParser();
@@ -40,8 +40,10 @@ namespace Parser.Tests
 
         private string GetAbsolutePath(string relativePath)
         {
-            var directory = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-            return Path.Combine(directory, relativePath);
+            var codeBaseUrl = new Uri(Assembly.GetExecutingAssembly().CodeBase);
+            var codeBasePath = Uri.UnescapeDataString(codeBaseUrl.AbsolutePath);
+            var dirPath = Path.GetDirectoryName(codeBasePath);
+            return Path.Combine(dirPath, relativePath);
         }
     }
 }

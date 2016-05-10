@@ -6,6 +6,7 @@
  * 
  * To change this template use Tools | Options | Coding | Edit Standard Headers.
  */
+using GrammarExplorer.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -26,6 +27,8 @@ namespace GrammarExplorer
 		public Window1()
 		{
 			InitializeComponent();
+
+            DataContext = new MainViewModel();
 		}
-	}
+    }
 }

@@ -17,18 +17,18 @@
 			<ColumnDefinition
 				Width="200"></ColumnDefinition>
 		</Grid.ColumnDefinitions>
-		<RichTextBox
+		<TextBox
 			Grid.Column="0"
 			Grid.RowSpan="1"
-			x:Name="GrammarTextBox"></RichTextBox>
+			x:Name="GrammarTextBox" DataContext="{Binding GrammarText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></TextBox>
 		<TreeView
 			Grid.RowSpan="1"
 			x:Name="GrammarRulesTreeView"
-			Grid.Column="1"></TreeView>
+			Grid.Column="1" DataContext="{Binding Grammar}"></TreeView>
 		<ListView
 			Grid.Row="1"
 			Grid.RowSpan="1"
 			x:Name="ParserErrorListView"
-			Grid.ColumnSpan="2"></ListView>
+			Grid.ColumnSpan="2" ItemsSource="{Binding ParserErrors}"></ListView>
 	</Grid>
 </Window>

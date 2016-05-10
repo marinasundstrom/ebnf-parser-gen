@@ -22,14 +22,28 @@ namespace GrammarExplorer.ViewModels
 		{
 			
 		}
-		
-		public string GrammarText { get; set; }
-		
-		public void ParseGrammar() {
+        string grammarText;
+
+        public string GrammarText
+        {
+            get
+            {
+                return grammarText;
+            }
+
+            set
+            {
+                grammarText = value;
+                ParseGrammar();
+            }
+        }
+
+        public void ParseGrammar() {
 			try {
 				Grammar = Grammar.Parse(GrammarText);
 			} catch (EbnfParserException exc) {
-				foreach(var error in exc.Errors) 
+                ParserErrors.Clear();
+                foreach (var error in exc.Errors) 
 					ParserErrors.Add(error);
 			}
 		}

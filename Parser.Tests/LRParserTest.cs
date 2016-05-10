@@ -1,14 +1,13 @@
-﻿using NUnit.Framework;
-using System;
+﻿using System;
 using Sundstrom.Parsing;
 using Sundstrom.Grammars;
+using Xunit;
 
 namespace Parser.Tests
 {
-	[TestFixture]
 	public class LRParserTest
 	{
-		[Test]
+		[Fact]
 		public void TestCase ()
 		{
 			var grammar = new TestGrammar ();
